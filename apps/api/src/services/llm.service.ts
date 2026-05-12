@@ -1,7 +1,17 @@
 import { ChatGroq } from "@langchain/groq";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { SYSTEM_PROMPT, buildPrompt } from "../prompts/medical.prompt";
-import { ReportAnalysis } from "../types/report.types";
+
+export interface ReportAnalysis {
+  reportType: string;
+  patientContext: string;
+  summary: string;
+  parameters: any[];
+  abnormalCount: number;
+  doctorQuestions: string[];
+  disclaimer: string;
+  analyzedAt: string;
+}
 
 const model = new ChatGroq({
   apiKey: process.env.GROQ_API_KEY!,
@@ -17,7 +27,6 @@ export async function analyzeWithGroq(text: string): Promise<ReportAnalysis> {
   ]);
 
   const content = response.content as string;
-
   const cleaned = content
     .replace(/```json\n?/g, "")
     .replace(/```\n?/g, "")
@@ -30,13 +39,11 @@ export async function analyzeWithGroq(text: string): Promise<ReportAnalysis> {
     throw new Error("AI returned invalid response. Please try again.");
   }
 
-  // Hardcode disclaimer — NEVER trust the LLM for safety-critical text
   parsed.disclaimer =
     "This explanation is for informational purposes only. It is not a medical diagnosis or professional medical advice. Always consult your healthcare provider before making any health decisions.";
-
   parsed.analyzedAt = new Date().toISOString();
   parsed.abnormalCount = parsed.parameters.filter(
-    (p) => p.severity !== "normal"
+    (p: any) => p.severity !== "normal"
   ).length;
 
   return parsed;
