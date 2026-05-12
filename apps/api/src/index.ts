@@ -8,19 +8,12 @@ import { errorHandler } from "./middleware/error.middleware";
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-app.use(helmet());
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || origin.startsWith("http://localhost")) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  }
-}));
+// Allow ALL origins — fix for production CORS
+app.use(cors());
+app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(express.json());
 
-app.get("/health", (_req, res) => {
+app.get("/health", (_req: any, res: any) => {
   res.json({ status: "ok", project: "ReportAI" });
 });
 
