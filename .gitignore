@@ -2,6 +2,9 @@ node_modules
 **/node_modules
 .env
 **/.env
+.env.local
+**/.env.local
 dist
 **/dist
 *.log
+.DS_Store
